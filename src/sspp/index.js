@@ -16,9 +16,11 @@ function updateUser(username, prop, value){
 
 router.put("/api/users/:username", (req, res) => {
     try {
+        let sanitizedParams;
+        let sanitizedBody;
         try {
-            const sanitizedParams = sanitization.sanitize !== undefined ? sanitization.sanitize(req.params) : req.params;
-            const sanitizedBody = sanitization.sanitize !== undefined ? sanitization.sanitize(req.body) : req.body;
+            sanitizedParams = sanitization.sanitize !== undefined ? sanitization.sanitize(req.params) : req.params;
+            sanitizedBody = sanitization.sanitize !== undefined ? sanitization.sanitize(req.body) : req.body;
         } catch (err) {
             return res.status(403).send('Sanitization Failure');
         }
