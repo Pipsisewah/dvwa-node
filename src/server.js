@@ -8,10 +8,11 @@ const server = {};
 server.create = () => {
    return express();
 }
-server.prepare = (server, config) => {
+server.prepare = (server, config, sanitize) => {
     server.use(bodyParser.json());
 
     Object.assign(ssppRouter.config,config);
+    ssppRouter.sanitization.sanitize = sanitize;
     server.use('/sspp/', ssppRouter.router);
 }
 server.startServer = (app) => {

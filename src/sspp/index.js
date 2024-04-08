@@ -3,6 +3,7 @@ const router = express.Router();
 const { logger } = require('../logger');
 
 const config = {};
+const sanitization = {};
 
 global.users = {
     "admin": {firstName: "The", lastName: "Admin"},
@@ -14,14 +15,24 @@ function updateUser(username, prop, value){
 }
 
 router.put("/api/users/:username", (req, res) => {
-    let username = req.params.username;
-    let user = JSON.parse(JSON.stringify(req.body));
+    try {
+        try {
+            const sanitizedParams = sanitization.sanitize !== undefined ? sanitization.sanitize(req.params) : req.params;
+            const sanitizedBody = sanitization.sanitize !== undefined ? sanitization.sanitize(req.body) : req.body;
+        } catch (err) {
+            return res.status(403).send('Sanitization Failure');
+        }
+        let username = sanitizedParams.username;
+        let user = JSON.parse(JSON.stringify(sanitizedBody));
 
-    for(const attr in user){
-        updateUser(username, attr, user[attr]);
+        for (const attr in user) {
+            updateUser(username, attr, user[attr]);
+        }
+        const obj = {};
+        return res.status(201).send(obj.allowEval);
+    }catch (err) {
+        return res.status(500).send('And error occurred');
     }
-    const obj = {};
-    return res.status(201).send(obj.allowEval);
 })
 
 router.get('/admin', (req, res) => {
@@ -34,4 +45,4 @@ router.get('/admin', (req, res) => {
     return res.status(200).send('AllowEval IS set.  RCE could have been executed!');
 })
 
-module.exports = {router, config};
+module.exports = {router, config, sanitization};
