@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const { logger } = require('../logger');
 
-const config = {
-    //allowEval: false
-}
+const config = {};
 
 global.users = {
     "admin": {firstName: "The", lastName: "Admin"},
@@ -21,24 +20,18 @@ router.put("/api/users/:username", (req, res) => {
     for(const attr in user){
         updateUser(username, attr, user[attr]);
     }
-
-    return res.status(201).send();
+    const obj = {};
+    return res.status(201).send(obj.allowEval);
 })
-
-
-router.get('/', (req, res) => {
-    res.send('SubSSPP');
-});
-
 
 router.get('/admin', (req, res) => {
     let body = JSON.parse(JSON.stringify(req.body));
-    console.log(`Config ${config.allowEval}`);
+    logger.info(`config.allowEval ${config.allowEval}`);
     if (!config.allowEval){
-        return res.status(403).send('AllowEval not set!');
+        return res.status(403).json({'response': 'AllowEval not set!'});
     }
     eval(body.code)
     return res.status(200).send('AllowEval IS set.  RCE could have been executed!');
 })
 
-module.exports = router;
+module.exports = {router, config};
