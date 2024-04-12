@@ -16,9 +16,9 @@ server.prepare = (server, config, sanitize) => {
     server.use('/sspp/', ssppRouter.router);
 }
 server.startServer = (app) => {
-    const PORT = process.env.PORT || 3000; // Use the port specified in the environment variable 'PORT', or default to 3000
+    const PORT = process.env.PORT || 3001; // Use the port specified in the environment variable 'PORT', or default to 3000
     return new Promise((resolve, reject) => {
-        const server = app.listen(3000, (err) => {
+        const server = app.listen(3001, (err) => {
             if (err) {
                 reject(err);
             } else {
