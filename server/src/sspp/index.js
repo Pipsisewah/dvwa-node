@@ -14,19 +14,20 @@ function updateUser(username, prop, value){
     users[username][prop] = value;
 }
 
-router.put("/api/users/:username", (req, res) => {
+function sanitizeRequest(req, res, next){
     try {
-        let sanitizedParams;
-        let sanitizedBody;
-        try {
-            sanitizedParams = sanitization.sanitize !== undefined ? sanitization.sanitize(req.params) : req.params;
-            sanitizedBody = sanitization.sanitize !== undefined ? sanitization.sanitize(req.body) : req.body;
-        } catch (err) {
-            return res.status(403).send('Sanitization Failure');
-        }
-        let username = sanitizedParams.username;
-        let user = JSON.parse(JSON.stringify(sanitizedBody));
+        req.params = sanitization.sanitize !== undefined ? sanitization.sanitize(req.params) : req.params;
+        req.body = sanitization.sanitize !== undefined ? sanitization.sanitize(req.body) : req.body;
+        next();
+    } catch (err) {
+        return res.status(403).send('Sanitization Failure');
+    }
+}
 
+router.put("/api/users/:username", sanitizeRequest, (req, res) => {
+    try {
+        let username = req.params.username;
+        let user = (req.body);
         for (const attr in user) {
             updateUser(username, attr, user[attr]);
         }
@@ -37,13 +38,12 @@ router.put("/api/users/:username", (req, res) => {
     }
 })
 
-router.get('/admin', (req, res) => {
-    let body = JSON.parse(JSON.stringify(req.body));
+router.get('/admin', sanitizeRequest, (req, res) => {
     logger.info(`config.allowEval ${config.allowEval}`);
     if (!config.allowEval){
         return res.status(403).json({'response': 'AllowEval not set!'});
     }
-    eval(body.code)
+    eval(req.body.code)
     return res.status(200).send('AllowEval IS set.  RCE could have been executed!');
 })
 
