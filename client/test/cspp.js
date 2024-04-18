@@ -6,6 +6,7 @@ describe('Prototype Pollution Test', function() {
 
     before(async function() {
         driver = await new Builder().forBrowser('chrome').build();
+        console.log('Chrome should be running')
     });
 
     after(async function() {
@@ -15,11 +16,16 @@ describe('Prototype Pollution Test', function() {
     it('should not be vulnerable to prototype pollution', async function(done) {
         try {
             console.log('attempting test');
-            await driver.get('http://localhost:3000/cspp'); // Replace with the URL of your locally hosted React app
-
+            await driver.get('http://localhost:3000/cspp?__proto__[value]=foo'); // Replace with the URL of your locally hosted React app
+            let config = {vuln: false};
+            Object.defineProperty(config, 'vuln', {configurable: false, writable: false});
+            if(config.vuln){
+                console.log('Config is vulnerable');
+            }
             console.log('Finished Await');
             // Find the vulnerable input field and inject the prototype pollution payload
             const inputField = await driver.findElement(By.css('input[name="username"]'));
+
             await inputField.sendKeys("<script>alert('Prototype Pollution!')</script>");
 
             // Wait for the alert caused by the prototype pollution
