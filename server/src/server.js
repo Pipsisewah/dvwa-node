@@ -2,6 +2,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const ssppRouter = require('./sspp');
+const ssrfRouter = require('./ssrf');
 
 const server = {};
 
@@ -14,6 +15,9 @@ server.prepare = (server, config, sanitize) => {
     Object.assign(ssppRouter.config,config);
     ssppRouter.sanitization.sanitize = sanitize;
     server.use('/sspp/', ssppRouter.router);
+
+    ssrfRouter.sanitization.sanitize = sanitize;
+    server.use('/ssrf/', ssrfRouter.router);
 }
 server.startServer = (app) => {
     const PORT = process.env.PORT || 3001; // Use the port specified in the environment variable 'PORT', or default to 3000
